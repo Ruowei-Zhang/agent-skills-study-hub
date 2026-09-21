@@ -1,0 +1,52 @@
+{
+  "name": "agent-skills-study-hub",
+  "version": "1.0.0",
+  "description": "Agent Skills 学习中心：把 agentskills.io 全部 9 篇官方文档整理成可精读、可练习、可自检的中文学习平台",
+  "author": "Ruowei-Zhang",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Ruowei-Zhang/agent-skills-study-hub.git"
+  },
+  "keywords": [
+    "agent-skills",
+    "agentskills",
+    "ai-agent",
+    "learning-platform",
+    "nextjs",
+    "react",
+    "drizzle-orm",
+    "chinese"
+  ],
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "db:push": "drizzle-kit push",
+    "db:generate": "drizzle-kit generate",
+    "db:studio": "drizzle-kit studio"
+  },
+  "dependencies": {
+    "dotenv": "17.3.1",
+    "drizzle-orm": "0.45.2",
+    "next": "16.2.6",
+    "pg": "8.20.0",
+    "react": "19.2.6",
+    "react-dom": "19.2.6"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "4.1.17",
+    "@types/node": "22.19.15",
+    "@types/pg": "8.18.0",
+    "@types/react": "19.2.14",
+    "@types/react-dom": "19.2.3",
+    "drizzle-kit": "0.31.10",
+    "eslint": "9.39.4",
+    "eslint-config-next": "16.2.6",
+    "postcss": "8.5.8",
+    "tailwindcss": "4.1.17",
+    "typescript": "5.9.3"
+  }
+}
