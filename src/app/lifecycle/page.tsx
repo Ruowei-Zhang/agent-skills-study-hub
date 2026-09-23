@@ -1,8 +1,6 @@
 import Link from "next/link";
 import { disclosureTiers } from "@/data";
-import { getLifecycleSteps } from "@/lib/queries";
-
-export const dynamic = "force-dynamic";
+import { getLifecycleSteps } from "@/lib/content";
 
 const scanPaths = [
   { scope: "项目", path: "<project>/.<your-client>/skills/", purpose: "客户端原生位置" },
@@ -11,8 +9,8 @@ const scanPaths = [
   { scope: "用户", path: "~/.agents/skills/", purpose: "跨客户端互操作" },
 ];
 
-export default async function LifecyclePage() {
-  const steps = await getLifecycleSteps();
+export default function LifecyclePage() {
+  const steps = getLifecycleSteps();
 
   return (
     <div className="space-y-9">
@@ -73,7 +71,7 @@ export default async function LifecyclePage() {
 
       <section className="space-y-5">
         {steps.map((step) => (
-          <article key={step.id} className="rounded-2xl border border-white/10 bg-white/[0.03] p-5 sm:p-6">
+          <article key={step.step} className="rounded-2xl border border-white/10 bg-white/[0.03] p-5 sm:p-6">
             <div className="flex flex-wrap items-center gap-3">
               <span className="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-indigo-400 to-sky-400 text-sm font-bold text-[#0b1020]">
                 {step.step}

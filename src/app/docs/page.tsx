@@ -1,12 +1,11 @@
 import Link from "next/link";
-import { SearchDirectory, type DirectoryItem } from "@/components/SearchDirectory";
+import { DocsDirectory } from "@/components/DocsDirectory";
+import type { DirectoryItem } from "@/components/SearchDirectory";
 import { docStats, learningPaths } from "@/data";
-import { getDocsCatalog } from "@/lib/queries";
+import { getDocsCatalog } from "@/lib/content";
 
-export const dynamic = "force-dynamic";
-
-export default async function DocsIndexPage() {
-  const catalog = await getDocsCatalog();
+export default function DocsIndexPage() {
+  const catalog = getDocsCatalog();
 
   const items: DirectoryItem[] = catalog.map((doc) => ({
     key: doc.slug,
@@ -17,7 +16,6 @@ export default async function DocsIndexPage() {
     badges: [doc.difficulty, ...doc.tags.slice(0, 3)],
     meta: `${doc.sectionCount} 节 · ${doc.snippetCount} 段代码 · ${doc.readMinutes} 分钟`,
     href: `/docs/${doc.slug}`,
-    progressPercent: doc.progress?.percent ?? 0,
   }));
 
   return (
@@ -28,7 +26,7 @@ export default async function DocsIndexPage() {
           agentskills.io 全站共 {docStats.pageCount} 篇文档，本站按官方导航分组完整收录：
           <b className="text-slate-200">基础与规范</b>（概览、格式规范、客户端清单）、
           <b className="text-slate-200">技能创作者</b>（快速开始、最佳实践、描述优化、输出评估、脚本设计）、
-          <b className="text-slate-200">客户端实现者</b>（添加技能支持）。每篇都可逐节标记已读，进度会持久保存。
+          <b className="text-slate-200">客户端实现者</b>（添加技能支持）。每篇都可逐节标记已读，进度保存在本机浏览器中。
         </p>
         <div className="mt-5 flex flex-wrap gap-3 text-sm">
           {learningPaths.map((path) => (
@@ -42,7 +40,7 @@ export default async function DocsIndexPage() {
         </div>
       </header>
 
-      <SearchDirectory
+      <DocsDirectory
         items={items}
         categories={[...new Set(catalog.map((doc) => doc.groupZh))]}
         placeholder="搜索标题、摘要、标签…"

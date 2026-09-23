@@ -1,64 +1,22 @@
 "use client";
 
-import { useState, useTransition } from "react";
-import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { addNote, deleteNote, setStarred, setStatus, useStudy } from "@/lib/store";
 
-export type PanelNote = {
-  id: number;
-  docSlug: string;
-  sectionAnchor: string | null;
-  content: string;
-  updatedAt: string | Date;
-};
-
-export function StudyPanel({
-  docSlug,
-  status,
-  starred,
-  notes,
-}: {
-  docSlug: string;
-  status: string;
-  starred: boolean;
-  notes: PanelNote[];
-}) {
-  const router = useRouter();
-  const [isPending, startTransition] = useTransition();
-  const [currentStatus, setCurrentStatus] = useState(status);
-  const [isStarred, setIsStarred] = useState(starred);
+export function StudyPanel({ docSlug }: { docSlug: string }) {
+  const state = useStudy();
   const [draft, setDraft] = useState("");
-  const [busy, setBusy] = useState(false);
 
-  async function patch(body: Record<string, unknown>) {
-    setBusy(true);
-    await fetch("/api/progress", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ docSlug, ...body }),
-    });
-    setBusy(false);
-    startTransition(() => router.refresh());
-  }
+  const entry = state.progress[docSlug];
+  const currentStatus = entry?.status ?? "unread";
+  const isStarred = entry?.starred ?? false;
+  const notes = state.notes.filter((note) => note.docSlug === docSlug);
 
-  async function submitNote() {
+  function submitNote() {
     const content = draft.trim();
     if (!content) return;
-    setBusy(true);
-    await fetch("/api/notes", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ docSlug, content }),
-    });
+    addNote(docSlug, content);
     setDraft("");
-    setBusy(false);
-    startTransition(() => router.refresh());
-  }
-
-  async function removeNote(id: number) {
-    setBusy(true);
-    await fetch(`/api/notes?id=${id}`, { method: "DELETE" });
-    setBusy(false);
-    startTransition(() => router.refresh());
   }
 
   const statuses = [
@@ -76,12 +34,8 @@ export function StudyPanel({
             <button
               key={item.key}
               type="button"
-              disabled={busy || isPending}
-              onClick={() => {
-                setCurrentStatus(item.key);
-                void patch({ status: item.key });
-              }}
-              className={`rounded-lg px-3 py-1.5 text-xs font-medium transition disabled:opacity-60 ${
+              onClick={() => setStatus(docSlug, item.key)}
+              className={`rounded-lg px-3 py-1.5 text-xs font-medium transition ${
                 currentStatus === item.key
                   ? "bg-gradient-to-r from-indigo-400 to-sky-400 text-[#0b1020]"
                   : "border border-white/15 text-slate-300 hover:border-indigo-400/40 hover:text-white"
@@ -93,12 +47,8 @@ export function StudyPanel({
         </div>
         <button
           type="button"
-          disabled={busy || isPending}
-          onClick={() => {
-            setIsStarred(!isStarred);
-            void patch({ starred: !isStarred });
-          }}
-          className="mt-3 text-xs text-slate-400 transition hover:text-amber-300 disabled:opacity-60"
+          onClick={() => setStarred(docSlug, !isStarred)}
+          className="mt-3 text-xs text-slate-400 transition hover:text-amber-300"
         >
           {isStarred ? "★ 已加入重点复习" : "☆ 加入重点复习"}
         </button>
@@ -115,12 +65,13 @@ export function StudyPanel({
         />
         <button
           type="button"
-          disabled={busy || !draft.trim()}
-          onClick={() => void submitNote()}
+          disabled={!draft.trim()}
+          onClick={submitNote}
           className="mt-2 rounded-lg bg-indigo-400/90 px-3 py-1.5 text-xs font-medium text-[#0b1020] transition hover:bg-indigo-300 disabled:opacity-40"
         >
           保存笔记
         </button>
+        <p className="mt-2 text-[11px] text-slate-500">笔记保存在当前浏览器的 localStorage 中。</p>
 
         <ul className="mt-4 space-y-2">
           {notes.length === 0 ? (
@@ -133,7 +84,7 @@ export function StudyPanel({
                 <span>{new Date(note.updatedAt).toLocaleString("zh-CN")}</span>
                 <button
                   type="button"
-                  onClick={() => void removeNote(note.id)}
+                  onClick={() => deleteNote(note.id)}
                   className="transition hover:text-rose-300"
                 >
                   删除

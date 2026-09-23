@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useState, useTransition } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useMemo, useState } from "react";
+import { saveAttempt } from "@/lib/store";
 
 export type QuizCard = {
   id: number;
@@ -51,13 +51,10 @@ export function QuizRunner({
   recordSlug?: string;
   lockScope?: boolean;
 }) {
-  const router = useRouter();
-  const [isPending, startTransition] = useTransition();
   const [scope, setScope] = useState("all");
   const [size, setSize] = useState("8");
   const [answers, setAnswers] = useState<Record<number, number>>({});
   const [submitted, setSubmitted] = useState<{ correct: number; total: number; results: Result[] } | null>(null);
-  const [saving, setSaving] = useState(false);
 
   const pool = useMemo(() => {
     const list = scope === "all" ? bank : bank.filter((item) => item.docSlug === scope);
@@ -88,21 +85,14 @@ export function QuizRunner({
     [submitted],
   );
 
-  async function submit() {
-    setSaving(true);
-    const payload = questions.map((question) => ({
-      questionId: question.id,
-      chosenIndex: answers[question.id] ?? -1,
-    }));
-    const response = await fetch("/api/quiz", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ docSlug: recordSlug ?? scope, answers: payload }),
+  function submit() {
+    // 本地判分：正确答案就在题卡里，判分与记录都无需请求服务器
+    const results: Result[] = questions.map((question) => {
+      const chosenIndex = answers[question.id] ?? -1;
+      return { questionId: question.id, chosenIndex, correct: chosenIndex === question.answerIndex };
     });
-    const data = (await response.json()) as { total: number; correct: number; results: Result[] };
-    setSubmitted({ correct: data.correct, total: data.total, results: data.results });
-    setSaving(false);
-    startTransition(() => router.refresh());
+    const { total, correct } = saveAttempt(recordSlug ?? scope, results);
+    setSubmitted({ correct, total, results });
   }
 
   function restart(nextScope = scope, nextSize = size) {
@@ -166,7 +156,6 @@ export function QuizRunner({
         </button>
         <p className="ml-auto text-xs text-slate-500">
           题库共 {pool.length} 题 · 已作答 {answeredCount}/{questions.length}
-          {saving || isPending ? " · 保存中…" : ""}
         </p>
       </div>
 
@@ -246,8 +235,8 @@ export function QuizRunner({
         ) : (
           <button
             type="button"
-            disabled={answeredCount === 0 || saving}
-            onClick={() => void submit()}
+            disabled={answeredCount === 0}
+            onClick={submit}
             className="rounded-lg bg-gradient-to-r from-indigo-400 to-sky-400 px-4 py-2 text-xs font-semibold text-[#0b1020] disabled:opacity-40"
           >
             提交作答（{answeredCount}/{questions.length}）

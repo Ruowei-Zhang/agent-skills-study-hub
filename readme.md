@@ -24,22 +24,16 @@
 |---|---|
 | 框架 | Next.js 16（App Router）+ React 19 + TypeScript |
 | 样式 | Tailwind CSS 4 |
-| 数据 | PostgreSQL + Drizzle ORM |
-| 内容 | 官方文档整理为结构化数据，存于 `src/data/`，首次访问自动灌库 |
+| 内容 | 官方文档整理为结构化静态数据，存于 `src/data/`，构建期直接渲染 |
+| 状态 | 阅读进度 / 笔记 / 测验记录保存在浏览器 localStorage，无需数据库与账号 |
+
+> 架构说明：本项目**没有数据库**。学习内容全部是静态数据；个人学习状态属于单个访客，存在本机浏览器里最合适——这也让部署变成零配置，且每位访客的数据彼此独立。
 
 ## 快速开始
 
 ### 前置条件
 
 - Node.js 20 或更高（开发使用 v22）
-- 一个可用的 PostgreSQL 数据库（本地或云端均可）
-
-> **数据库必须处于运行状态**，否则 `db:push` 和页面访问都会报连接错误。确认方式：
->
-> - **Windows（安装器安装）**：PostgreSQL 默认注册为系统服务、开机自启，一般无需操心；可用 `Get-Service *postgres*` 检查，显示 `Running` 即可，未运行则 `Start-Service <服务名>`。
-> - **Windows（手动解压安装）**：需要手动启动，如 `pg_ctl -D <数据目录> start`。
-> - **macOS（Homebrew）**：`brew services start postgresql`。
-> - **不想装本地数据库**：可以用 [Neon](https://neon.tech)、[Supabase](https://supabase.com) 等免费云端 PostgreSQL，直接拿连接串填进 `.env` 即可，跳过本节的启动问题。
 
 ### 步骤
 
@@ -47,21 +41,13 @@
 # 1. 安装依赖
 npm install
 
-# 2. 配置数据库连接串
-cp .env.example .env        # Windows: copy .env.example .env
-# 编辑 .env，把 DATABASE_URL 改成你的 PostgreSQL 连接串
-
-# 3. 建表（按 src/db/schema.ts 自动创建全部数据表）
-#    如果连不上数据库会在这一步报错，请回到上方「前置条件」确认数据库已启动
-npm run db:push
-
-# 4. 启动开发服务器
+# 2. 启动开发服务器
 npm run dev
 ```
 
-打开 <http://localhost:3000> 即可。**内容会在首次访问时自动灌入数据库**，无需手动初始化；学习进度、笔记、测验成绩会实时保存。
+打开 <http://localhost:3000> 即可。无需数据库、无需环境变量；学习进度、笔记、测验成绩会自动保存在浏览器本地。
 
-**停止方式**：开发服务器在终端按 `Ctrl + C` 即可；数据库通常无需手动停止（系统服务随系统管理）。
+**停止方式**：开发服务器在终端按 `Ctrl + C` 即可。
 
 ### 常用脚本
 
@@ -69,28 +55,13 @@ npm run dev
 |---|---|
 | `npm run dev` | 启动开发服务器 |
 | `npm run build` / `npm start` | 生产构建 / 启动 |
-| `npm run db:push` | 按 schema 同步建表（首次必跑） |
-| `npm run db:generate` | 生成迁移文件 |
-| `npm run db:studio` | 打开 Drizzle Studio 可视化查库 |
 | `npm run lint` / `npm run typecheck` | 代码检查 / 类型检查 |
-
-### 环境变量
-
-| 变量 | 必填 | 说明 |
-|---|---|---|
-| `DATABASE_URL` | 是 | PostgreSQL 连接串，如 `postgresql://postgres:密码@127.0.0.1:5432/app_db` |
 
 ## 内容更新流程
 
 文档内容集中在 `src/data/*.ts`（`docs-foundations` / `docs-authoring-a` / `docs-authoring-b` / `docs-implementation` 四组），题库与术语在 `src/data/study.ts`，规范字段与清单在 `src/data/reference.ts`。
 
-更新内容的步骤：
-
-1. 编辑对应 `src/data/*.ts` 文件；
-2. **把 `src/db/seed.ts` 里的 `SEED_VERSION` 改为新值**（例如日期版本号）；
-3. 重启后首次访问会自动重灌内容表。
-
-> 重新灌库只清理内容表，**不会动**你的学习进度、笔记和测验成绩（它们在独立的用户状态表里）。
+更新内容只需：编辑对应 `src/data/*.ts` 文件，然后重新构建部署。内容变更**不会影响**访客已保存的学习进度、笔记和测验成绩（它们在各自浏览器的 localStorage 里）。
 
 ## 目录结构
 
@@ -101,12 +72,10 @@ src/
 │   ├── docs/            # 文档精读（列表 + 详情）
 │   ├── quiz/ review/    # 刻意练习 / 错题本
 │   ├── spec/ lifecycle/ glossary/ clients/ checklist/ notes/ search/
-│   ├── api/             # health / seed / progress / notes / quiz 接口
 │   ├── loading.tsx error.tsx not-found.tsx
 ├── components/          # DocReader / QuizRunner / SpecValidator / TopNav 等
-├── data/                # 全部学习内容（结构化种子数据）
-├── db/                  # schema.ts / index.ts / seed.ts
-└── lib/                 # queries.ts（数据访问） / validate.ts
+├── data/                # 全部学习内容（结构化静态数据）
+└── lib/                 # content.ts（静态内容访问） / store.ts（localStorage 学习状态）
 ```
 
 ## 二次开发指南
@@ -114,16 +83,15 @@ src/
 | 想改什么 | 改哪里 |
 |---|---|
 | 文案、标题、导航 | `src/components/TopNav.tsx`、各 `src/app/*/page.tsx` |
-| 学习内容、题库、术语 | `src/data/*.ts`（改完记得 bump `SEED_VERSION`） |
+| 学习内容、题库、术语 | `src/data/*.ts`（改完重新构建即可） |
 | 配色、圆角、字号 | 全局在 `src/app/globals.css` 与各组件 className；Tailwind 主题 token 见 `postcss.config.mjs` |
 | 页面结构 / 路由 | `src/app/` 下对应目录 |
-| 数据表结构 | `src/db/schema.ts`（改后跑 `npm run db:push`） |
-| 数据查询逻辑 | `src/lib/queries.ts` |
-| 数据库连接 | `.env` 的 `DATABASE_URL` |
+| 内容查询与搜索逻辑 | `src/lib/content.ts` |
+| 进度 / 笔记 / 成绩的存储逻辑 | `src/lib/store.ts`（localStorage） |
 
 ## 部署
 
-本项目是标准 Next.js 应用，可部署到 Vercel、自建 Node 服务器或任意支持 Next.js 的平台。部署时配置环境变量 `DATABASE_URL` 指向你的 PostgreSQL，并在首次部署后执行一次 `npm run db:push` 建表。
+本项目是零配置的标准 Next.js 应用（无数据库、无环境变量），可部署到 Vercel、自建 Node 服务器或任意支持 Next.js 的平台。以 Vercel 为例：导入 GitHub 仓库后直接点 Deploy 即可，之后每次 push 到 main 都会自动重新部署。
 
 ## 内容来源与许可
 

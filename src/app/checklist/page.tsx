@@ -1,12 +1,10 @@
 import Link from "next/link";
 import { ChecklistBoard, type CheckItem } from "@/components/ChecklistBoard";
 import { checklist } from "@/data";
-import { getDocsCatalog } from "@/lib/queries";
+import { getDocsCatalog } from "@/lib/content";
 
-export const dynamic = "force-dynamic";
-
-export default async function ChecklistPage() {
-  const catalog = await getDocsCatalog();
+export default function ChecklistPage() {
+  const catalog = getDocsCatalog();
   const docTitles = new Map(catalog.map((doc) => [doc.slug, doc.titleZh]));
 
   const items: CheckItem[] = checklist.map((item, index) => ({

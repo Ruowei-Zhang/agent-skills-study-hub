@@ -1,18 +1,16 @@
 import Link from "next/link";
 import { SearchDirectory, type DirectoryItem } from "@/components/SearchDirectory";
-import { getGlossary } from "@/lib/queries";
-
-export const dynamic = "force-dynamic";
+import { getGlossary } from "@/lib/content";
 
 type PageProps = { searchParams: Promise<{ q?: string }> };
 
 export default async function GlossaryPage({ searchParams }: PageProps) {
   const { q } = await searchParams;
-  const terms = await getGlossary();
+  const terms = getGlossary();
 
   const categories = [...new Set(terms.map((term) => term.category))];
   const items: DirectoryItem[] = terms.map((term) => ({
-    key: `${term.id}-${term.term}`,
+    key: `${term.category}-${term.term}`,
     title: `${term.term} · ${term.termZh}`,
     subtitle: term.definitionZh,
     description: `出处：${term.docSlug === "overview" ? "概览" : term.docSlug}`,

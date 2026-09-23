@@ -1,11 +1,9 @@
 import Link from "next/link";
 import { SearchDirectory, type DirectoryItem } from "@/components/SearchDirectory";
-import { getClients } from "@/lib/queries";
+import { getClients } from "@/lib/content";
 
-export const dynamic = "force-dynamic";
-
-export default async function ClientsPage() {
-  const clients = await getClients();
+export default function ClientsPage() {
+  const clients = getClients();
 
   const categories = [...new Set(clients.map((client) => client.category))];
   const items: DirectoryItem[] = clients.map((client) => ({

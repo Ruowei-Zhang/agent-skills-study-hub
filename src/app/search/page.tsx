@@ -1,16 +1,14 @@
 import Link from "next/link";
 import { SearchDirectory, type DirectoryItem } from "@/components/SearchDirectory";
 import { docStats } from "@/data";
-import { searchEverything } from "@/lib/queries";
-
-export const dynamic = "force-dynamic";
+import { searchEverything } from "@/lib/content";
 
 type PageProps = { searchParams: Promise<{ q?: string }> };
 
 export default async function SearchPage({ searchParams }: PageProps) {
   const { q } = await searchParams;
   const term = q?.trim() ?? "";
-  const hits = term ? await searchEverything(term) : [];
+  const hits = term ? searchEverything(term) : [];
 
   const items: DirectoryItem[] = hits.map((hit, index) => ({
     key: `${hit.kind}-${index}-${hit.title}`,

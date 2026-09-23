@@ -1,8 +1,8 @@
 "use client";
 
-import { useMemo, useState, useTransition } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useMemo, useState } from "react";
 import { MarkdownLite } from "@/components/MarkdownLite";
+import { setSections, toggleSection, touchDoc, useStudy } from "@/lib/store";
 
 export type ReaderSnippet = {
   id: number;
@@ -47,56 +47,45 @@ function CopyButton({ code }: { code: string }) {
 export function DocReader({
   docSlug,
   sections,
-  completed,
   withToc = true,
 }: {
   docSlug: string;
   sections: ReaderSection[];
-  completed: string[];
   withToc?: boolean;
 }) {
-  const router = useRouter();
-  const [isPending, startTransition] = useTransition();
-  const [done, setDone] = useState<string[]>(completed);
+  const state = useStudy();
   const [showEn, setShowEn] = useState<Record<string, boolean>>({});
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [justSaved, setJustSaved] = useState(false);
+
+  const done = useMemo(
+    () => state.progress[docSlug]?.completedSections ?? [],
+    [state.progress, docSlug],
+  );
+
+  // 打开文档即记录「最近阅读」，供总览页的断点续读使用
+  useEffect(() => {
+    touchDoc(docSlug);
+  }, [docSlug]);
 
   const percent = useMemo(
     () => Math.round((done.length / Math.max(sections.length, 1)) * 100),
     [done.length, sections.length],
   );
 
-  async function persist(body: Record<string, unknown>, optimistic: string[], rollback: string[]) {
-    setDone(optimistic);
-    setSaving(true);
-    setError(null);
-    try {
-      const response = await fetch("/api/progress", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
-      });
-      if (!response.ok) throw new Error(`保存失败（HTTP ${response.status}）`);
-      startTransition(() => router.refresh());
-    } catch (err) {
-      // 落库失败时回滚本地勾选，避免界面与数据不一致
-      setDone(rollback);
-      setError(err instanceof Error ? err.message : "保存失败，请检查网络后重试");
-    } finally {
-      setSaving(false);
-    }
+  function flashSaved() {
+    setJustSaved(true);
+    setTimeout(() => setJustSaved(false), 1200);
   }
 
   function setAll(next: string[]) {
-    void persist({ docSlug, sections: next }, next, done);
+    setSections(docSlug, next, sections.length);
+    flashSaved();
   }
 
-  function toggleSection(anchor: string) {
-    const next = done.includes(anchor) ? done.filter((item) => item !== anchor) : [...done, anchor];
-    void persist({ docSlug, toggleSection: anchor }, next, done);
+  function toggle(anchor: string) {
+    toggleSection(docSlug, anchor, sections.length);
+    flashSaved();
   }
-
   return (
     <div className={withToc ? "grid gap-8 lg:grid-cols-[minmax(0,1fr)_16rem]" : "grid gap-8"}>
       <div className="min-w-0 space-y-6">
@@ -104,8 +93,7 @@ export function DocReader({
           <div className="flex flex-wrap items-center justify-between gap-3 text-xs text-slate-400">
             <span>
               精读进度：<strong className="text-white">{done.length}</strong> / {sections.length} 节（{percent}%）
-              {saving || isPending ? " · 保存中…" : ""}
-              {error ? <span className="ml-2 text-rose-300">{error}</span> : null}
+              {justSaved ? " · 已保存到本地 ✓" : ""}
             </span>
             <button
               type="button"
@@ -155,7 +143,7 @@ export function DocReader({
                   </button>
                   <button
                     type="button"
-                    onClick={() => toggleSection(section.anchor)}
+                    onClick={() => toggle(section.anchor)}
                     className={`rounded-lg px-2.5 py-1.5 text-[11px] font-medium transition ${
                       isDone
                         ? "bg-indigo-400 text-[#0b1020] hover:bg-indigo-300"

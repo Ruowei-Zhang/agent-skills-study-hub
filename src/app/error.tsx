@@ -6,8 +6,7 @@ export default function Error({ error, reset }: { error: Error & { digest?: stri
       <p className="text-3xl">⚠️</p>
       <h1 className="mt-3 text-lg font-semibold text-white">页面加载失败</h1>
       <p className="mt-2 text-[13.5px] leading-6 text-slate-300">
-        数据库可能未启动或连接失败。请确认 PostgreSQL 正在运行、<code className="rounded bg-white/10 px-1.5 py-0.5">DATABASE_URL</code>{" "}
-        配置正确，然后重试。
+        页面渲染时出现异常。请刷新重试；如果反复出现，可以尝试清除浏览器本地存储（localStorage）后再访问。
       </p>
       <p className="mt-2 text-[12px] text-slate-500">{error.message}</p>
       <button

@@ -1,11 +1,9 @@
 import Link from "next/link";
 import { SpecValidator } from "@/components/SpecValidator";
-import { getSpecFields } from "@/lib/queries";
+import { getSpecFields } from "@/lib/content";
 
-export const dynamic = "force-dynamic";
-
-export default async function SpecPage() {
-  const fields = await getSpecFields();
+export default function SpecPage() {
+  const fields = getSpecFields();
 
   return (
     <div className="space-y-9">
@@ -49,7 +47,7 @@ export default async function SpecPage() {
             </thead>
             <tbody>
               {fields.map((field) => (
-                <tr key={field.id} className="border-b border-white/5 align-top">
+                <tr key={field.field} className="border-b border-white/5 align-top">
                   <td className="px-3 py-3 font-mono text-[12.5px] text-indigo-200">{field.field}</td>
                   <td className="px-3 py-3">
                     <span
