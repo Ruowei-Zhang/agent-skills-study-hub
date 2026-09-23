@@ -20,7 +20,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start",
+    "start": "serve out -l 3000",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit"
   },
@@ -37,6 +37,7 @@
     "eslint": "9.39.4",
     "eslint-config-next": "16.2.6",
     "postcss": "8.5.8",
+    "serve": "^14.2.6",
     "tailwindcss": "4.1.17",
     "typescript": "5.9.3"
   }

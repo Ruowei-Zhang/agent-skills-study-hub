@@ -14,7 +14,7 @@ if [ ! -d node_modules ]; then
 fi
 
 echo "[2/3] 检查生产构建 ..."
-if [ ! -f .next/BUILD_ID ]; then
+if [ ! -f out/index.html ]; then
   echo "      未找到构建产物，开始构建（约 1 分钟）..."
   npm run build || { echo "[ERROR] 构建失败，请查看上方报错。"; exit 1; }
 fi

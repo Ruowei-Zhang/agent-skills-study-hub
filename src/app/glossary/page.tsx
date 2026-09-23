@@ -1,11 +1,9 @@
-import Link from "next/link";
+import { Suspense } from "react";
 import { SearchDirectory, type DirectoryItem } from "@/components/SearchDirectory";
+import { GlossaryBrowser } from "@/components/GlossaryBrowser";
 import { getGlossary } from "@/lib/content";
 
-type PageProps = { searchParams: Promise<{ q?: string }> };
-
-export default async function GlossaryPage({ searchParams }: PageProps) {
-  const { q } = await searchParams;
+export default function GlossaryPage() {
   const terms = getGlossary();
 
   const categories = [...new Set(terms.map((term) => term.category))];
@@ -28,21 +26,20 @@ export default async function GlossaryPage({ searchParams }: PageProps) {
           这套标准的用词非常精确：渐进式披露、目录、激活、宽松校验、相近反例、触发率、结构化包裹…
           把 {terms.length} 个术语的准确定义集中在这里，每个都标注了出处章节，方便随时回查。搜索框支持中英文与定义内容匹配。
         </p>
-        {q ? (
-          <p className="mt-2 text-xs text-indigo-200">
-            已带上搜索词「{q}」：
-            <Link href="/glossary" className="ml-1 text-slate-300 underline underline-offset-2">
-              清除
-            </Link>
-          </p>
-        ) : null}
       </header>
 
-      <SearchDirectory
-        items={items}
-        categories={categories}
-        placeholder="搜索术语、中文释义或定义内容…"
-      />
+      {/* ?q= 由客户端读取（静态导出要求 useSearchParams 包在 Suspense 中）；fallback 为未筛选的完整列表 */}
+      <Suspense
+        fallback={
+          <SearchDirectory
+            items={items}
+            categories={categories}
+            placeholder="搜索术语、中文释义或定义内容…"
+          />
+        }
+      >
+        <GlossaryBrowser items={items} categories={categories} />
+      </Suspense>
 
       <section className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
         <h2 className="text-sm font-semibold text-white">容易混淆的三组概念</h2>

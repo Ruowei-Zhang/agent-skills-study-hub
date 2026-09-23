@@ -66,8 +66,9 @@ npm run build && npm start
 
 | 命令 | 作用 |
 |---|---|
-| `npm run dev` | 启动开发服务器 |
-| `npm run build` / `npm start` | 生产构建 / 启动 |
+| `npm run dev` | 启动开发服务器（改代码热更新） |
+| `npm run build` | 生产构建，静态导出到 `out/` 目录 |
+| `npm start` | 本地预览 `out/`（http://localhost:3000） |
 | `npm run lint` / `npm run typecheck` | 代码检查 / 类型检查 |
 
 ## 内容更新流程
@@ -104,7 +105,9 @@ src/
 
 ## 部署
 
-本项目是零配置的标准 Next.js 应用（无数据库、无环境变量），可部署到 Vercel、自建 Node 服务器或任意支持 Next.js 的平台。以 Vercel 为例：导入 GitHub 仓库后直接点 Deploy 即可，之后每次 push 到 main 都会自动重新部署。
+本项目通过 `output: "export"` 纯静态导出：`npm run build` 的产物 `out/` 目录只含 HTML/JS/CSS，**不依赖任何 Node 运行时**，可托管到任意静态平台（EdgeOne Pages、Cloudflare Pages、GitHub Pages、OSS/COS 桶、nginx……），平台迁移零成本。
+
+以腾讯 EdgeOne Pages 为例（国内访问快、默认域名免备案）：控制台 → Pages → 导入 GitHub 仓库 → 构建命令 `npm run build`、输出目录 `out` → Deploy，之后每次 push 到 main 自动重新部署。自定义域名走国内节点需 ICP 备案，Demo 阶段用默认域名即可。
 
 ## 内容来源与许可
 

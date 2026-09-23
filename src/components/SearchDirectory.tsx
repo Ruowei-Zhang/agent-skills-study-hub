@@ -22,13 +22,16 @@ export function SearchDirectory({
   categories,
   placeholder = "搜索…",
   emptyHint = "没有匹配结果，换个关键词试试。",
+  initialTerm = "",
 }: {
   items: DirectoryItem[];
   categories: string[];
   placeholder?: string;
   emptyHint?: string;
+  /** 初始筛选词（如来自 URL ?q=），缺省为空。 */
+  initialTerm?: string;
 }) {
-  const [term, setTerm] = useState("");
+  const [term, setTerm] = useState(initialTerm);
   const [category, setCategory] = useState("全部");
 
   const filtered = useMemo(() => {

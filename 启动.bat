@@ -31,7 +31,7 @@ if not exist "node_modules" (
 )
 
 echo [2/3] Checking production build ...
-if not exist ".next\BUILD_ID" (
+if not exist "out\index.html" (
   echo       No build found. Building now, please wait about 1 minute ...
   call npm run build
   if errorlevel 1 (

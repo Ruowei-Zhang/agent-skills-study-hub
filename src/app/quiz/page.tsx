@@ -1,12 +1,10 @@
+import { Suspense } from "react";
 import Link from "next/link";
-import { QuizRunner, type QuizCard } from "@/components/QuizRunner";
+import { QuizRunnerScoped, type QuizCard } from "@/components/QuizRunner";
 import { QuizHistoryList, QuizStatsBadges } from "@/components/QuizExtras";
 import { getDocsCatalog, getQuizBank } from "@/lib/content";
 
-type PageProps = { searchParams: Promise<{ scope?: string }> };
-
-export default async function QuizPage({ searchParams }: PageProps) {
-  const { scope } = await searchParams;
+export default function QuizPage() {
   const bank = getQuizBank();
   const catalog = getDocsCatalog();
 
@@ -21,6 +19,7 @@ export default async function QuizPage({ searchParams }: PageProps) {
     answerIndex: question.answerIndex,
     explanationZh: question.explanationZh,
   }));
+  const docOptions = catalog.map((doc) => ({ slug: doc.slug, titleZh: doc.titleZh }));
 
   return (
     <div className="space-y-9">
@@ -33,12 +32,10 @@ export default async function QuizPage({ searchParams }: PageProps) {
         <QuizStatsBadges bankSize={cards.length} />
       </header>
 
-      <QuizRunner
-        bank={cards}
-        docOptions={scope && docTitles.has(scope)
-          ? [{ slug: scope, titleZh: docTitles.get(scope) ?? scope }, ...catalog.filter((doc) => doc.slug !== scope).map((doc) => ({ slug: doc.slug, titleZh: doc.titleZh }))]
-          : catalog.map((doc) => ({ slug: doc.slug, titleZh: doc.titleZh }))}
-      />
+      {/* ?scope= 由客户端读取（静态导出要求 useSearchParams 包在 Suspense 中） */}
+      <Suspense fallback={null}>
+        <QuizRunnerScoped bank={cards} docOptions={docOptions} />
+      </Suspense>
 
       <section className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
         <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">

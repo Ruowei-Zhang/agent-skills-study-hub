@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { saveAttempt } from "@/lib/store";
 
 export type QuizCard = {
@@ -44,14 +45,17 @@ export function QuizRunner({
   weights,
   recordSlug,
   lockScope = false,
+  initialScope,
 }: {
   bank: QuizCard[];
   docOptions: { slug: string; titleZh: string }[];
   weights?: Record<number, number>;
   recordSlug?: string;
   lockScope?: boolean;
+  /** 初始选中的文档范围（来自 URL 等外部入口），缺省为 "all"。 */
+  initialScope?: string;
 }) {
-  const [scope, setScope] = useState("all");
+  const [scope, setScope] = useState(initialScope ?? "all");
   const [size, setSize] = useState("8");
   const [answers, setAnswers] = useState<Record<number, number>>({});
   const [submitted, setSubmitted] = useState<{ correct: number; total: number; results: Result[] } | null>(null);
@@ -251,3 +255,22 @@ export function QuizRunner({
 }
 
 export default QuizRunner;
+
+/**
+ * 读取 URL ?scope= 的包装组件：把指定文档排到下拉框第一位并作为初始练习范围。
+ * 内部使用 useSearchParams，渲染时必须包在 <Suspense> 中（静态导出要求）。
+ */
+export function QuizRunnerScoped({
+  bank,
+  docOptions,
+}: {
+  bank: QuizCard[];
+  docOptions: { slug: string; titleZh: string }[];
+}) {
+  const urlScope = useSearchParams().get("scope");
+  const matched = urlScope ? docOptions.find((doc) => doc.slug === urlScope) : undefined;
+  const orderedOptions = matched
+    ? [matched, ...docOptions.filter((doc) => doc.slug !== matched.slug)]
+    : docOptions;
+  return <QuizRunner bank={bank} docOptions={orderedOptions} initialScope={matched?.slug} />;
+}
