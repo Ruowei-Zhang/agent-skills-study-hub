@@ -31,8 +31,19 @@ if not exist "node_modules" (
 )
 
 echo [2/3] Checking production build ...
+set "NEED_BUILD="
 if not exist "out\index.html" (
   echo       No build found. Building now, please wait about 1 minute ...
+  set "NEED_BUILD=1"
+) else (
+  rem Source code newer than the build output? If so, rebuild to avoid serving stale pages.
+  powershell -NoProfile -Command "exit((Get-ChildItem -Recurse -File 'src' | Sort-Object LastWriteTime -Descending | Select-Object -First 1).LastWriteTime -gt (Get-Item 'out\index.html').LastWriteTime)" >nul 2>&1
+  if errorlevel 1 (
+    echo       Source code changed since last build. Rebuilding ...
+    set "NEED_BUILD=1"
+  )
+)
+if defined NEED_BUILD (
   call npm run build
   if errorlevel 1 (
     echo [ERROR] Build failed. See messages above.
@@ -40,7 +51,7 @@ if not exist "out\index.html" (
     exit /b 1
   )
 ) else (
-  echo       Build found.
+  echo       Build is up to date.
 )
 
 echo [3/3] Starting web app at http://localhost:3000

@@ -14,8 +14,15 @@ if [ ! -d node_modules ]; then
 fi
 
 echo "[2/3] 检查生产构建 ..."
+NEED_BUILD=0
 if [ ! -f out/index.html ]; then
   echo "      未找到构建产物，开始构建（约 1 分钟）..."
+  NEED_BUILD=1
+elif [ -n "$(find src -type f -newer out/index.html -print -quit 2>/dev/null)" ]; then
+  echo "      检测到代码在构建后有修改，重新构建 ..."
+  NEED_BUILD=1
+fi
+if [ "$NEED_BUILD" = "1" ]; then
   npm run build || { echo "[ERROR] 构建失败，请查看上方报错。"; exit 1; }
 fi
 
