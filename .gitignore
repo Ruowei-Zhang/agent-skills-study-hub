@@ -1,4 +1,4 @@
-# dependencies
+﻿# dependencies
 /node_modules
 /.pnp
 .pnp.*
@@ -15,9 +15,6 @@ next-env.d.ts
 .env
 .env*.local
 
-# drizzle
-/drizzle/meta
-
 # misc
 .DS_Store
 *.pem
@@ -26,7 +23,3 @@ yarn-debug.log*
 yarn-error.log*
 .vercel
 *.tsbuildinfo
-
-# 本机启动脚本（含机器专属路径，不入库）
-启动.bat
-停止.bat
