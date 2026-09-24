@@ -41,6 +41,8 @@ export type SiteStats = {
   questionCount: number;
 };
 
+const REPO_URL = "https://github.com/Ruowei-Zhang/agent-skills-study-hub";
+
 function bar(percent: number) {
   return (
     <div className="h-1.5 w-full overflow-hidden rounded-full bg-white/10">
@@ -136,6 +138,17 @@ export function HomeDashboard({
             >
               frontmatter 校验器
             </Link>
+            <a
+              href={REPO_URL}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-2 rounded-xl border border-white/15 px-5 py-2.5 text-sm text-slate-200 transition hover:border-amber-300/50 hover:text-amber-200"
+            >
+              <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" className="h-4 w-4 text-amber-300">
+                <path d="M8 .25a.75.75 0 0 1 .673.418l1.882 3.815 4.21.612a.75.75 0 0 1 .416 1.279l-3.046 2.97.719 4.192a.751.751 0 0 1-1.088.791L8 12.347l-3.766 1.98a.75.75 0 0 1-1.088-.79l.72-4.194L.818 6.374a.75.75 0 0 1 .416-1.28l4.21-.611L7.327.668A.75.75 0 0 1 8 .25Z" />
+              </svg>
+              觉得有帮助？去 GitHub 点个 Star
+            </a>
           </div>
 
           <div className="mt-10 grid gap-4 sm:grid-cols-3">

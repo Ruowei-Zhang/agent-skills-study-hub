@@ -4,6 +4,10 @@
 
 > Agent Skills 是 Anthropic 发起、现为开放标准的「用文件夹 + `SKILL.md` 给 AI Agent 扩展能力」的规范。本项目面向中文学习者，把这套规范从「读文档」升级为「学 - 练 - 测 - 追踪」的闭环。
 
+**在线 Demo**：<https://agent-skills-study-hub-osy426wi.edgeone.cool/>（腾讯 EdgeOne Pages 托管，国内可直接访问，无需本地安装）
+
+觉得有帮助？欢迎给本仓库点个 ⭐ Star！
+
 ![学习总览看板](docs/images/overview.png)
 
 ## 功能
