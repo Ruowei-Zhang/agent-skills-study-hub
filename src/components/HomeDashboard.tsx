@@ -95,9 +95,22 @@ export function HomeDashboard({
     <div className="space-y-12">
       <section className="grid gap-8 lg:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)]">
         <div>
-          <span className="inline-flex items-center gap-2 rounded-full border border-indigo-400/30 bg-indigo-400/10 px-3 py-1 text-[11.5px] text-indigo-200">
-            已整理 {stats.pageCount} 篇官方文档 · {stats.sectionCount} 个章节 · {stats.snippetCount} 段代码
-          </span>
+          <div className="flex flex-wrap items-center gap-2.5">
+            <span className="inline-flex items-center gap-2 rounded-full border border-indigo-400/30 bg-indigo-400/10 px-3 py-1 text-[11.5px] text-indigo-200">
+              已整理 {stats.pageCount} 篇官方文档 · {stats.sectionCount} 个章节 · {stats.snippetCount} 段代码
+            </span>
+            <a
+              href={REPO_URL}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-1.5 rounded-full border border-amber-300/30 bg-amber-300/10 px-3 py-1 text-[11.5px] text-amber-200 transition hover:border-amber-300/60 hover:bg-amber-300/15"
+            >
+              <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" className="h-3 w-3">
+                <path d="M8 .25a.75.75 0 0 1 .673.418l1.882 3.815 4.21.612a.75.75 0 0 1 .416 1.279l-3.046 2.97.719 4.192a.751.751 0 0 1-1.088.791L8 12.347l-3.766 1.98a.75.75 0 0 1-1.088-.79l.72-4.194L.818 6.374a.75.75 0 0 1 .416-1.28l4.21-.611L7.327.668A.75.75 0 0 1 8 .25Z" />
+              </svg>
+              本站开源 · 觉得有帮助就点个 Star
+            </a>
+          </div>
           <h1 className="mt-5 text-[clamp(2rem,4.6vw,3.1rem)] font-bold leading-[1.08] tracking-tight text-white">
             Agent Skills 全站文档
             <span className="bg-gradient-to-r from-indigo-300 to-sky-300 bg-clip-text text-transparent">
@@ -138,17 +151,6 @@ export function HomeDashboard({
             >
               frontmatter 校验器
             </Link>
-            <a
-              href={REPO_URL}
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex items-center gap-2 rounded-xl border border-white/15 px-5 py-2.5 text-sm text-slate-200 transition hover:border-amber-300/50 hover:text-amber-200"
-            >
-              <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" className="h-4 w-4 text-amber-300">
-                <path d="M8 .25a.75.75 0 0 1 .673.418l1.882 3.815 4.21.612a.75.75 0 0 1 .416 1.279l-3.046 2.97.719 4.192a.751.751 0 0 1-1.088.791L8 12.347l-3.766 1.98a.75.75 0 0 1-1.088-.79l.72-4.194L.818 6.374a.75.75 0 0 1 .416-1.28l4.21-.611L7.327.668A.75.75 0 0 1 8 .25Z" />
-              </svg>
-              觉得有帮助？去 GitHub 点个 Star
-            </a>
           </div>
 
           <div className="mt-10 grid gap-4 sm:grid-cols-3">

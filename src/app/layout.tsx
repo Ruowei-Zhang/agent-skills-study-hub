@@ -49,6 +49,14 @@ export default function RootLayout({ children }: { children: ReactNode }) {
               >
                 GitHub 规范仓库
               </a>
+              <a
+                href="https://github.com/Ruowei-Zhang/agent-skills-study-hub"
+                target="_blank"
+                rel="noreferrer"
+                className="text-amber-200/80 hover:text-amber-200"
+              >
+                ⭐ 本站源码 · 求 Star
+              </a>
             </div>
           </div>
         </footer>
